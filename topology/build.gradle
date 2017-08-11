@@ -23,15 +23,16 @@ dependencies {
 }
 
 task stormJar(type: Jar) {
+    zip64 true
     dependsOn configurations.runtime
     from {
         (configurations.runtime - configurations.excludedFromStormJar + configurations.includedInStormJar).collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
-    manifest {
-        attributes( "Main-Class": "${archivesBaseName}/${mainClassName}")
-    }
+//    manifest {
+//        attributes( "Main-Class": "${archivesBaseName}/${mainClassName}")
+//    }
     exclude "META-INF/*.SF"
     exclude "META-INF/*.DSA"
     exclude "META-INF/*.RSA"
