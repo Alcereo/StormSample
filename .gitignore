@@ -1,0 +1,7 @@
+# Created by .ignore support plugin (hsz.mobi)
+/.idea/
+/StormLoggingTesting.iml
+/topology/gradlew
+/topology/gradlew.bat
+build
+gradle
