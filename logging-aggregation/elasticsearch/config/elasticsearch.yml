@@ -1,0 +1,2 @@
+#repositories.url.allowed_urls: ["http://download.elastic.coo/*"]
+network.host: 0.0.0.0

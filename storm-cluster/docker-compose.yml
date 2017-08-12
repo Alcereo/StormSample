@@ -4,6 +4,8 @@ services:
   zookeeper:
     image: zookeeper
     container_name: zookeeper
+    networks:
+      - storm
 #    restart: always
 
   nimbus:
@@ -14,46 +16,50 @@ services:
       - zookeeper
     links:
       - zookeeper
-#    restart: always
     ports:
       - 6627:6627
+    networks:
+      - storm
+      - loggingaggregation_elk
+    volumes:
+      - ./log4j2:/apache-storm-1.1.0/log4j2
+      - ./lib:/apache-storm-1.1.0/lib
 
   supervisor:
     image: storm
     container_name: supervisor
     command: storm supervisor
+    networks:
+      - storm
+      - loggingaggregation_elk
     depends_on:
       - nimbus
       - zookeeper
     links:
       - nimbus
       - zookeeper
-#    restart: always
+    volumes:
+      - ./log4j2:/apache-storm-1.1.0/log4j2
+      - ./lib:/apache-storm-1.1.0/lib
 
   ui:
     image: storm
     container_name: storm-ui
     command: storm ui
     ports:
-      - "8080:8080"
+      - 8080:8080
+    networks:
+      - storm
     depends_on:
       - nimbus
       - zookeeper
     links:
       - nimbus
       - zookeeper
-#    restart: always
 
-#  topology:
-#    image: storm
-#    container_name: storm-ui
-#    command: storm ui
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - nimbus
-#      - zookeeper
-#    links:
-#      - nimbus
-#      - zookeeper
-#    restart: always
+networks:
+
+  storm:
+    driver: bridge
+  loggingaggregation_elk:
+      external: true

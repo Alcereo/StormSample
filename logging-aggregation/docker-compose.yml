@@ -1,0 +1,53 @@
+version: '2'
+services:
+
+  elasticsearch:
+    image: elasticsearch:latest
+    container_name: elasticsearch
+    command: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+      - "80:80"
+    networks:
+      elk:
+        aliases:
+          - elasticsearch
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+
+  logstash:
+    image: logstash:5
+    container_name: logstash
+    command: bash -c "logstash -f /etc/logstash/conf.d/logstash.conf"
+    volumes:
+      - ./logstash/config:/etc/logstash/conf.d
+#      - ./logstash/local_gems:/opt/logstash/vendor/local_gems #/5acd7b33/logstash-input-log4j2-5.2-java/vendor/log4j-api-2.1
+    ports:
+      - "5000:5000"
+      - "7000:7000"
+    networks:
+      elk:
+        aliases:
+          - logstash
+    links:
+      - elasticsearch
+
+  kibana:
+    build: kibana/
+    container_name: kibana
+    volumes:
+      - ./kibana/config/kibana.yml:/opt/kibana/config/kibana.yml
+    ports:
+      - "5601:5601"
+    networks:
+      elk:
+        aliases:
+          - kibana
+    links:
+      - elasticsearch
+
+networks:
+
+  elk:
+    driver: bridge

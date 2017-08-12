@@ -1,12 +1,14 @@
 package ru.alcereo;
 
+import org.apache.log4j.MDC;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichSpout;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,9 @@ import java.util.Random;
  * Created by alcereo on 09.02.17.
  */
 public class SimpleSpout extends BaseRichSpout {
+
+    private static final Logger log = LoggerFactory.getLogger(SimpleSpout.class);
+
     private SpoutOutputCollector collector;
     private long counter = 0;
     private Random rand = new Random();
@@ -33,13 +38,9 @@ public class SimpleSpout extends BaseRichSpout {
         names.add("Sergey");
         names.add("Stupid");
 
-//        System.out.println("open spout");
-
     }
 
     public void nextTuple() {
-
-//        System.out.println("next tuple spout");
 
         try {
             Thread.sleep(1000);
@@ -48,7 +49,12 @@ public class SimpleSpout extends BaseRichSpout {
         }
 
         String name = names.get(rand.nextInt(names.size()-1));
+        MDC.put("name", name);
+        log.debug("commit name");
+
         collector.emit(new Values(counter++,name,"commited "+(counter-1)+" from: "+name));
+
+        MDC.clear();
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
